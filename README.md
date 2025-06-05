@@ -17,6 +17,13 @@ This project provides an automated way to deploy the **ELK Stack** (Elasticsearc
 
 ---
 
+# Elk-stack
+
+├── docker-compose.yml     # Docker Compose stack for Elasticsearch, Logstash, Kibana
+├── logstash.conf          # Logstash config for SSH login logs
+└── setup-elk.sh           # Automated setup script
+
+
 ## ⚙️ Quick Setup
 
 Run this one-liner on your VPS to automatically install and configure everything:
@@ -24,12 +31,3 @@ Run this one-liner on your VPS to automatically install and configure everything
 ```bash
 curl -sSL https://raw.githubusercontent.com/incrisz/elk-stack/main/setup-elk.sh | bash
 
-
-
-
-
-.
-├── docker-compose.yml     # Docker Compose stack for Elasticsearch, Logstash, Kibana
-├── logstash.conf          # Logstash config for SSH login logs
-└── setup-elk.sh           # Automated setup script
-# Elk-stack
