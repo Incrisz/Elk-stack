@@ -17,11 +17,7 @@ This project provides an automated way to deploy the **ELK Stack** (Elasticsearc
 
 ---
 
-# Elk-stack
-```bash
-├── docker-compose.yml     # Docker Compose stack for Elasticsearch, Logstash, Kibana
-├── logstash.conf          # Logstash config for SSH login logs
-└── setup-elk.sh           # Automated setup script
+
 
 ## ⚙️ Quick Setup
 
