@@ -88,7 +88,7 @@ echo "=== Launching the ELK stack... ==="
 
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
+sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
 sudo dpkg -i filebeat-8.13.4-amd64.deb
 
 echo "=== Enabling file integrity module in Filebeat... ==="
