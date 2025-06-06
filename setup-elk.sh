@@ -21,9 +21,9 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ELASTIC_PASSWORD=changeme123
     ulimits:
       memlock:
         soft: -1
@@ -75,15 +75,36 @@ output {
   elasticsearch {
     hosts => ["elasticsearch:9200"]
     index => "ssh-logins-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "changeme123"
   }
   stdout { codec => rubydebug }
 }
 EOF
 
-echo "=== Launching the ELK stack... ==="
+echo "=== Launching Elasticsearch first... ==="
 (
   cd /home/elk-stack
-  sudo docker-compose up -d
+  sudo docker-compose up -d elasticsearch
+)
+
+echo "=== Waiting for Elasticsearch to start... ==="
+sleep 30
+
+echo "=== Generating Kibana enrollment token... ==="
+ENROLLMENT_TOKEN=$(sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana)
+
+echo ""
+echo "🔑 KIBANA ENROLLMENT TOKEN:"
+echo "=================================================="
+echo "$ENROLLMENT_TOKEN"
+echo "=================================================="
+echo ""
+
+echo "=== Starting Kibana and Logstash... ==="
+(
+  cd /home/elk-stack
+  sudo docker-compose up -d kibana logstash
 )
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
@@ -99,20 +120,9 @@ filebeat.inputs:
       - /etc/**/*
       - /usr/bin/*
       - /usr/sbin/*
-    fields:
-      log_type: file_integrity
-    fields_under_root: true
 
 output.logstash:
   hosts: ["localhost:5044"]
-
-logging.level: info
-logging.to_files: true
-logging.files:
-  path: /var/log/filebeat
-  name: filebeat
-  keepfiles: 7
-  permissions: 0644
 EOF
 
 echo "=== Starting Filebeat... ==="
@@ -123,4 +133,13 @@ echo ""
 echo "🎉 All set! Access your ELK stack:"
 echo "  - Elasticsearch: http://your-vps-ip:9200"
 echo "  - Kibana: http://your-vps-ip:5601"
+echo ""
+echo "📋 Login Credentials:"
+echo "  - Username: elastic"
+echo "  - Password: changeme123"
+echo ""
+echo "🔑 Use the enrollment token above when first accessing Kibana"
 echo "👉 In Kibana, create index patterns 'ssh-logins-*' and 'filebeat-*' to see logs and file changes."
+echo ""
+echo "⚠️  IMPORTANT: Change the default password after setup!"
+echo "   sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic"
