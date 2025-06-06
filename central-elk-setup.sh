@@ -23,7 +23,7 @@ services:
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - ELASTIC_PASSWORD=changeme123
     ulimits:
       memlock:
@@ -37,12 +37,6 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
     container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=changeme123
-      - xpack.security.enabled=true
-      - xpack.security.enrollment.enabled=false
     ports:
       - "5601:5601"
     depends_on:
@@ -55,7 +49,6 @@ services:
       - "5044:5044"
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      - /var/log:/var/log:ro
     depends_on:
       - elasticsearch
 
