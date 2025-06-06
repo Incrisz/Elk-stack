@@ -23,7 +23,7 @@ services:
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - ELASTIC_PASSWORD=changeme123
     ulimits:
       memlock:
@@ -265,7 +265,7 @@ echo ""
 echo "📤 Next Steps:"
 echo "1. Access Kibana and complete setup"
 echo "2. Deploy Filebeat agents on remote servers using:"
-echo "   SERVER_IP=$SERVER_IP curl -sSL https://your-repo/remote-agent-setup.sh | bash"
+echo "   SERVER_IP=$SERVER_IP curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | bash"
 echo ""
 echo "📊 Index Patterns to Create in Kibana:"
 echo "  - ssh-logs-*"
