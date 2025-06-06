@@ -199,14 +199,11 @@ echo "=== Starting Kibana and Logstash... ==="
 echo "=== Waiting for services to initialize... ==="
 sleep 15
 
-echo "=== Installing Filebeat locally (optional - monitors this ELK server) ==="
-read -p "Install Filebeat on this ELK server to monitor itself? (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
-  sudo dpkg -i filebeat-8.13.4-amd64.deb
+echo "=== Installing Filebeat locally (monitors this ELK server) ==="
+sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
+sudo dpkg -i filebeat-8.13.4-amd64.deb
 
-  sudo tee /etc/filebeat/filebeat.yml <<EOF
+sudo tee /etc/filebeat/filebeat.yml <<EOF
 filebeat.inputs:
   - type: filestream
     id: local_file_integrity
@@ -224,9 +221,8 @@ output.logstash:
   hosts: ["localhost:5044"]
 EOF
 
-  sudo systemctl enable filebeat
-  sudo systemctl start filebeat
-fi
+sudo systemctl enable filebeat
+sudo systemctl start filebeat
 
 # Get server IP
 SERVER_IP=$(curl -s ifconfig.me || hostname -I | awk '{print $1}')
@@ -255,7 +251,12 @@ echo ""
 echo "📤 Next Steps:"
 echo "1. Access Kibana and complete setup"
 echo "2. Deploy Filebeat agents on remote servers using:"
-echo "   curl -sSL https://your-repo/remote-agent-setup.sh | SERVER_IP=$SERVER_IP bash"
+echo "   SERVER_IP=$SERVER_IP curl -sSL https://your-repo/remote-agent-setup.sh | bash"
+echo ""
+echo "📊 Index Patterns to Create in Kibana:"
+echo "  - ssh-logs-*"
+echo "  - file-integrity-*"
+echo "  - general-logs-*"
 echo ""
 echo "⚠️  IMPORTANT: Change default password after setup!"
 echo "   sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic"

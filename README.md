@@ -1,165 +1,142 @@
-# 🚀 ELK Stack: Elasticsearch, Logstash, and Kibana Deployment
+# 🚀 Centralized ELK Stack: Multi-Server Security Monitoring
 
-This project provides an automated way to deploy the **ELK Stack** (Elasticsearch, Logstash, and Kibana) on a single VPS, with:
+Deploy a **centralized ELK Stack** that monitors multiple VPS servers from one dashboard:
 
-✅ SSH login monitoring  
-✅ File integrity monitoring  
-✅ Docker Compose for easy management
-
----
-
-## 📦 Features
-
-- **Elasticsearch**: Store and index logs for powerful search and analysis.
-- **Logstash**: Collect logs from your system (including SSH logins).
-- **Kibana**: Visualize logs and data in real-time dashboards.
-- **Filebeat**: File integrity monitoring to track changes in critical system files.
+✅ **Centralized SSH monitoring** across all servers  
+✅ **File integrity monitoring** for critical system files  
+✅ **Real-time security dashboards** with geolocation  
+✅ **Automated deployment** with Docker Compose
 
 ---
 
-## ⚙️ Quick Setup
+## 🏗️ Architecture
 
-Run this one-liner on your VPS to automatically install and configure everything:
-
-```bash
-sudo curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/setup-elk.sh | bash
+```
+[Central ELK Server] ← [Remote Server 1 + Filebeat]
+                    ← [Remote Server 2 + Filebeat]  
+                    ← [Remote Server N + Filebeat]
 ```
 
 ---
 
-## 🔐 Initial Setup & Access
+## 🚀 Quick Setup
 
-After the script completes:
-
-1. **Copy the enrollment token** displayed in the terminal
-2. **Access Kibana** at `http://your-vps-ip:5601`
-3. **Paste the enrollment token** when prompted
-
-### Getting the Verification Code
-
-If Kibana asks for a verification code, run one of these commands:
-
+### Step 1: Deploy Central ELK Server
 ```bash
-sudo docker logs kibana 2>&1 | grep -E "verification|code"
+curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/central-elk-setup.sh | bash
 ```
 
-### Login Credentials
-
-- **Username**: `elastic`
-- **Password**: `changeme123`
-
-⚠️ **Important**: Change the default password after first login:
+### Step 2: Install Agents on Remote Servers
 ```bash
-sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+# Replace with your ELK server IP
+SERVER_IP="your.elk.server.ip" curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | bash
 ```
 
 ---
 
-## 📊 Setting Up Dashboards
+## 🔐 Access & Login
 
-Once logged into Kibana:
+1. **Access Kibana**: `http://your-elk-server-ip:5601`
+2. **Login Credentials**:
+   - Username: `elastic`
+   - Password: `changeme123`
 
-1. Go to **Stack Management** → **Index Patterns**
-2. Create these index patterns:
-   - `ssh-logins-*` (for SSH monitoring)
-   - `filebeat-*` (for file integrity monitoring)
-3. Navigate to **Discover** to start exploring your logs
+### If Kibana asks for verification code:
+```bash
+sudo docker exec kibana /usr/share/kibana/bin/kibana-verification-code
+```
 
 ---
 
-## 🛠️ Management Commands
+## 📊 Create Dashboards
 
-### Check service status:
+In Kibana, create these index patterns:
+- `ssh-logs-*` (SSH authentication events)
+- `file-integrity-*` (File changes)
+- `general-logs-*` (System logs)
+
+---
+
+## 🔍 What's Monitored
+
+### From Each Server:
+- **SSH Events**: Login attempts, source IPs, geolocation
+- **File Changes**: `/etc/`, `/usr/bin/`, `/usr/sbin/`, SSH keys
+- **System Logs**: General system events and errors
+
+### Security Features:
+- Failed login tracking with source IP geolocation
+- Real-time file integrity monitoring
+- Multi-server correlation in single dashboard
+
+---
+
+## 🛠️ Management
+
+### Check ELK services:
 ```bash
-cd /home/elk-stack
-sudo docker-compose ps
+cd /home/elk-stack && sudo docker-compose ps
 ```
 
 ### View logs:
 ```bash
+sudo docker logs kibana
+sudo docker logs logstash
 sudo docker logs elasticsearch
-sudo docker logs kibana
-sudo docker logs logstash
 ```
 
-### Restart services:
+### Check remote agent:
 ```bash
-cd /home/elk-stack
-sudo docker-compose restart
+sudo systemctl status filebeat
 ```
 
-### Stop all services:
+---
+
+## 🔒 Security
+
+⚠️ **Change default password**:
 ```bash
-cd /home/elk-stack
-sudo docker-compose down
+sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 ```
 
----
-
-## 🔒 Security Notes
-
-- The setup uses basic authentication with a default password
-- For production use, consider:
-  - Enabling SSL/TLS encryption
-  - Setting up proper firewall rules
-  - Using stronger passwords
-  - Implementing network security groups
+**Firewall**: Ports 5601 (Kibana), 5044 (Logstash) need to be accessible
 
 ---
 
-## 🌐 Access Points
+## 📋 Requirements
 
-- **Elasticsearch**: `http://your-vps-ip:9200`
-- **Kibana**: `http://your-vps-ip:5601`
-- **Logstash**: `http://your-vps-ip:5044` (for log ingestion)
-
----
-
-## 📝 What's Being Monitored
-
-### SSH Logins
-- All authentication attempts
-- Successful and failed logins
-- Source IP addresses
-- Timestamps
-
-### File Integrity
-- Changes to `/etc/` directory
-- Modifications to `/usr/bin/` and `/usr/sbin/`
-- File creation, deletion, and modification events
+- **Central Server**: 4GB RAM minimum (8GB recommended)
+- **Remote Servers**: 512MB RAM minimum
+- **Storage**: 20GB+ for log retention
+- **OS**: Ubuntu/Debian Linux
 
 ---
 
-## 🆘 Troubleshooting
+## 🆘 Quick Troubleshooting
 
-### Kibana won't start or shows errors:
+### Remote server not sending logs:
+```bash
+# Check Filebeat status
+sudo systemctl status filebeat
+sudo tail -f /var/log/filebeat/filebeat
+
+# Test connection to ELK server
+nc -z your.elk.server.ip 5044
+```
+
+### Kibana issues:
 ```bash
 sudo docker logs kibana
 ```
 
-### Elasticsearch memory issues:
-```bash
-# Increase memory limits in docker-compose.yml
-ES_JAVA_OPTS=-Xms2g -Xmx2g
-```
-
-### Logstash not processing logs:
-```bash
-sudo docker logs logstash
-# Check if /var/log/auth.log exists and is readable
-```
-
 ---
 
-## 📋 System Requirements
+## 🧹 Complete Removal
 
-- **RAM**: Minimum 4GB (8GB recommended)
-- **Storage**: At least 8GB free space
-- **OS**: Ubuntu/Debian-based Linux
-- **Network**: Ports 5601, 9200, and 5044 accessible
+```bash
+# On ELK server
+cd /home/elk-stack && sudo docker-compose down -v && sudo rm -rf /home/elk-stack
 
----
-
-## 🤝 Contributing
-
-Feel free to submit issues and pull requests to improve this ELK stack deployment!
+# On remote servers  
+sudo systemctl stop filebeat && sudo apt remove --purge -y filebeat
+```

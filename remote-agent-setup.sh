@@ -1,44 +1,33 @@
 #!/bin/bash
 set -e
 
-echo "=== Remote Filebeat Agent Setup for Central ELK Collection ==="
-echo ""
+# Configuration - Get ELK server IP from environment or parameter
+ELK_SERVER_IP="${SERVER_IP:-${1:-}}"
 
-# Get ELK server IP from user
-if [ -z "$SERVER_IP" ]; then
-    echo "📋 Central ELK Server Configuration:"
-    echo "🔍 This script will configure this server to send logs to your central ELK server."
-    echo ""
-    read -p "🌐 Enter your ELK server IP address: " ELK_SERVER_IP
-    
-    if [ -z "$ELK_SERVER_IP" ]; then
-        echo "❌ ERROR: ELK server IP is required!"
-        echo "Usage: SERVER_IP=your.elk.server.ip bash remote-agent-setup.sh"
-        echo "   OR: Run script and enter IP when prompted"
-        exit 1
-    fi
-else
-    ELK_SERVER_IP="$SERVER_IP"
+if [ -z "$ELK_SERVER_IP" ]; then
+    echo "❌ ERROR: ELK server IP not provided!"
+    echo "Usage options:"
+    echo "  SERVER_IP=your.elk.server.ip bash remote-agent-setup.sh"
+    echo "  bash remote-agent-setup.sh your.elk.server.ip"
+    echo "  curl -sSL script.sh | SERVER_IP=your.elk.server.ip bash"
+    exit 1
 fi
 
-echo ""
+echo "=== Setting up Filebeat Agent for Central ELK Collection ==="
 echo "📡 ELK Server: $ELK_SERVER_IP"
 echo "🖥️  This Server: $(hostname)"
-echo ""
-read -p "❓ Continue with this configuration? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Setup cancelled."
-    exit 1
-fi
 
 echo "=== Testing connection to ELK server... ==="
-if ! nc -z $ELK_SERVER_IP 5044; then
-    echo "❌ Cannot reach ELK server at $ELK_SERVER_IP:5044"
-    echo "   Make sure firewall allows port 5044 and ELK server is running"
-    exit 1
+if command -v nc >/dev/null 2>&1; then
+    if ! nc -z $ELK_SERVER_IP 5044 2>/dev/null; then
+        echo "⚠️  Cannot reach ELK server at $ELK_SERVER_IP:5044"
+        echo "   Continuing anyway - firewall may be blocking test"
+    else
+        echo "✅ Connection to ELK server successful"
+    fi
+else
+    echo "ℹ️  Netcat not available, skipping connection test"
 fi
-echo "✅ Connection to ELK server successful"
 
 echo "=== Installing Filebeat... ==="
 sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
