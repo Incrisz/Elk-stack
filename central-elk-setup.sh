@@ -249,7 +249,7 @@ EOF
   sudo systemctl start filebeat
 fi
 
-# Get server IP
+# Use the IP provided by user
 SERVER_IP="$ELK_SERVER_IP"
 
 echo ""
@@ -276,7 +276,7 @@ echo ""
 echo "📤 Next Steps - Deploy on Remote Servers:"
 echo "   Run this command on each server you want to monitor:"
 echo "   ┌─────────────────────────────────────────────────────────────┐"
-echo "   │ curl -sSL https://your-repo/remote-agent-setup.sh | \\      │"
+echo "   │ curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | \\"
 echo "   │ SERVER_IP=$SERVER_IP bash                                   │"
 echo "   └─────────────────────────────────────────────────────────────┘"
 echo ""
