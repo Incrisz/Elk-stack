@@ -258,7 +258,7 @@ echo ""
 echo "📤 Next Steps:"
 echo "1. Access Kibana and complete setup"
 echo "2. Deploy Filebeat agents on remote servers using:"
-echo "   SERVER_IP=$SERVER_IP curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | bash"
+echo '   SERVER_IP=$SERVER_IP bash -c "$(curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh)"'
 echo ""
 echo "📊 Index Patterns to Create in Kibana:"
 echo "  - ssh-logs-*"

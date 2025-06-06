@@ -29,7 +29,7 @@ curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/central-elk-s
 ### Step 2: Install Agents on Remote Servers
 ```bash
 # Replace with your ELK server IP
-SERVER_IP="your.elk.server.ip" curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | bash
+SERVER_IP="insert-your-central-server-ip" bash -c "$(curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh)"
 ```
 
 ---
