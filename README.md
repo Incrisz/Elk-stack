@@ -40,10 +40,6 @@ After the script completes:
 If Kibana asks for a verification code, run one of these commands:
 
 ```bash
-# Method 1: Get verification code directly
-sudo docker exec kibana /usr/share/kibana/bin/kibana-verification-code
-
-# Method 2: Check Kibana logs for the code
 sudo docker logs kibana 2>&1 | grep -E "verification|code"
 ```
 
