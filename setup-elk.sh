@@ -99,9 +99,20 @@ filebeat.inputs:
       - /etc/**/*
       - /usr/bin/*
       - /usr/sbin/*
+    fields:
+      log_type: file_integrity
+    fields_under_root: true
 
 output.logstash:
   hosts: ["localhost:5044"]
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
 EOF
 
 echo "=== Starting Filebeat... ==="
