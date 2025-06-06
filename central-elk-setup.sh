@@ -10,11 +10,14 @@ DETECTED_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/nu
 echo "🔍 Detected public IP: $DETECTED_IP"
 echo ""
 
-read -p "🌐 Enter the IP address for this ELK server [$DETECTED_IP]: " ELK_SERVER_IP
-ELK_SERVER_IP=${ELK_SERVER_IP:-$DETECTED_IP}
+read -p "🌐 Enter the IP address for this ELK server [$DETECTED_IP]: " USER_INPUT
+if [ -z "$USER_INPUT" ]; then
+    ELK_SERVER_IP="$DETECTED_IP"
+else
+    ELK_SERVER_IP="$USER_INPUT"
+fi
 
 echo ""
-echo "ELK_SERVER_IP: $ELK_SERVER_IP"
 echo "📡 ELK Server will be accessible at: $ELK_SERVER_IP"
 read -p "❓ Is this correct? (y/N): " -n 1 -r
 echo
@@ -189,9 +192,9 @@ output {
 EOF
 
 echo "=== Configuring firewall for remote log collection... ==="
-sudo ufw allow 5044/tcp comment "Logstash - Remote log collection"
-sudo ufw allow 5601/tcp comment "Kibana - Web interface"
-sudo ufw allow 9200/tcp comment "Elasticsearch - API access"
+sudo ufw allow 5044/tcp comment "Logstash - Remote log collection" 2>/dev/null || true
+sudo ufw allow 5601/tcp comment "Kibana - Web interface" 2>/dev/null || true
+sudo ufw allow 9200/tcp comment "Elasticsearch - API access" 2>/dev/null || true
 
 echo "=== Launching Elasticsearch first... ==="
 (
