@@ -78,6 +78,7 @@ output {
 EOF
 
 echo "=== Launching the ELK stack... ==="
+cd elk-stack
 sudo docker compose up -d &> /dev/null
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
