@@ -91,11 +91,20 @@ echo "=== Installing Filebeat for file integrity monitoring... ==="
 sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
 sudo dpkg -i filebeat-8.13.4-amd64.deb
 
-echo "=== Enabling file integrity module in Filebeat... ==="
-sudo filebeat modules enable file_integrity
+echo "=== Configuring Filebeat for file integrity monitoring... ==="
+sudo tee /etc/filebeat/filebeat.yml <<EOF
+filebeat.inputs:
+  - type: filestream
+    id: file_integrity_monitor
+    paths:
+      - /etc/**/*
+      - /usr/bin/*
+      - /usr/sbin/*
 
-echo "=== Configuring Filebeat output to Logstash... ==="
-sudo tee -a /etc/filebeat/filebeat.yml <<EOF
+output.logstash:
+  hosts: ["localhost:5044"]
+EOF
+
 
 output.logstash:
   hosts: ["localhost:5044"]
