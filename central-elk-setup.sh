@@ -2,31 +2,6 @@
 set -e
 
 echo "=== Setting up CENTRAL ELK Server for Remote Log Collection ==="
-echo ""
-
-# Get server information
-echo "📋 Server Configuration:"
-DETECTED_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || hostname -I | awk '{print $1}')
-echo "🔍 Detected public IP: $DETECTED_IP"
-echo ""
-
-read -p "🌐 Enter the IP address for this ELK server [$DETECTED_IP]: " USER_INPUT
-if [ -z "$USER_INPUT" ]; then
-    ELK_SERVER_IP="$DETECTED_IP"
-else
-    ELK_SERVER_IP="$USER_INPUT"
-fi
-
-echo ""
-echo "📡 ELK Server will be accessible at: $ELK_SERVER_IP"
-read -p "❓ Is this correct? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Setup cancelled. Please run again with the correct IP."
-    exit 1
-fi
-
-echo ""
 echo "=== Updating system and installing Docker & Docker Compose... ==="
 sudo apt update
 sudo apt upgrade -y
@@ -192,9 +167,9 @@ output {
 EOF
 
 echo "=== Configuring firewall for remote log collection... ==="
-sudo ufw allow 5044/tcp comment "Logstash - Remote log collection" 2>/dev/null || true
-sudo ufw allow 5601/tcp comment "Kibana - Web interface" 2>/dev/null || true
-sudo ufw allow 9200/tcp comment "Elasticsearch - API access" 2>/dev/null || true
+sudo ufw allow 5044/tcp comment "Logstash - Remote log collection"
+sudo ufw allow 5601/tcp comment "Kibana - Web interface"
+sudo ufw allow 9200/tcp comment "Elasticsearch - API access"
 
 echo "=== Launching Elasticsearch first... ==="
 (
@@ -253,8 +228,8 @@ EOF
   sudo systemctl start filebeat
 fi
 
-# Use the IP provided by user
-SERVER_IP="$ELK_SERVER_IP"
+# Get server IP
+SERVER_IP=$(curl -s ifconfig.me || hostname -I | awk '{print $1}')
 
 echo ""
 echo "🎉 Central ELK Server Setup Complete!"
@@ -277,12 +252,10 @@ echo ""
 echo "💡 If Kibana asks for verification code:"
 echo "   sudo docker exec kibana /usr/share/kibana/bin/kibana-verification-code"
 echo ""
-echo "📤 Next Steps - Deploy on Remote Servers:"
-echo "   Run this command on each server you want to monitor:"
-echo "   ┌─────────────────────────────────────────────────────────────┐"
-echo "   │ curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/remote-agent-setup.sh | \\"
-echo "   │ SERVER_IP=$SERVER_IP bash                                   │"
-echo "   └─────────────────────────────────────────────────────────────┘"
+echo "📤 Next Steps:"
+echo "1. Access Kibana and complete setup"
+echo "2. Deploy Filebeat agents on remote servers using:"
+echo "   curl -sSL https://your-repo/remote-agent-setup.sh | SERVER_IP=$SERVER_IP bash"
 echo ""
 echo "⚠️  IMPORTANT: Change default password after setup!"
 echo "   sudo docker exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic"
