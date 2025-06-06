@@ -168,10 +168,10 @@ output {
 }
 EOF
 
-echo "=== Configuring firewall for remote log collection... ==="
-sudo ufw allow 5044/tcp comment "Logstash - Remote log collection"
-sudo ufw allow 5601/tcp comment "Kibana - Web interface"
-sudo ufw allow 9200/tcp comment "Elasticsearch - API access"
+# echo "=== Configuring firewall for remote log collection... ==="
+# sudo ufw allow 5044/tcp comment "Logstash - Remote log collection"
+# sudo ufw allow 5601/tcp comment "Kibana - Web interface"
+# sudo ufw allow 9200/tcp comment "Elasticsearch - API access"
 
 echo "=== Launching Elasticsearch first... ==="
 (
