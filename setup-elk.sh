@@ -36,10 +36,6 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
     container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=changeme123
     ports:
       - "5601:5601"
     depends_on:
@@ -52,7 +48,6 @@ services:
       - "5044:5044"
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      - /var/log:/var/log:ro
     depends_on:
       - elasticsearch
 
@@ -112,9 +107,6 @@ echo "=== Starting Kibana and Logstash... ==="
   sudo docker-compose up -d kibana logstash
 )
 
-echo "=== Waiting for Kibana to initialize... ==="
-sleep 15
-
 echo "=== Installing Filebeat for file integrity monitoring... ==="
 sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
 sudo dpkg -i filebeat-8.13.4-amd64.deb
@@ -146,15 +138,11 @@ echo "📋 Login Credentials:"
 echo "  - Username: elastic"
 echo "  - Password: changeme123"
 echo ""
+echo ""
 echo "🔑 KIBANA ENROLLMENT TOKEN:"
 echo "=================================================="
 echo "$ENROLLMENT_TOKEN"
 echo "=================================================="
-echo ""
-echo "💡 If Kibana asks for a verification code, run:"
-echo "   sudo docker exec kibana /usr/share/kibana/bin/kibana-verification-code"
-echo "   OR"
-echo "   sudo docker logs kibana 2>&1 | grep -E \"verification|code\""
 echo ""
 echo "🔑 Use the enrollment token above when first accessing Kibana"
 echo "👉 In Kibana, create index patterns 'ssh-logins-*' and 'filebeat-*' to see logs and file changes."
