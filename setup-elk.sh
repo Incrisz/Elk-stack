@@ -81,7 +81,8 @@ output {
 EOF
 
 echo "=== Launching the ELK stack... ==="
-sudo docker compose up -d
+sudo docker-compose -f /home/elk-stack/docker-compose.yml up -d
+
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
