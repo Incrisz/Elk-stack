@@ -81,7 +81,10 @@ output {
 EOF
 
 echo "=== Launching the ELK stack... ==="
-sudo docker-compose -f /home/elk-stack/docker-compose.yml up -d
+(
+  cd /home/elk-stack
+  sudo docker-compose up -d
+)
 
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
