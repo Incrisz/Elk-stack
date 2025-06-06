@@ -180,17 +180,17 @@ echo "=== Launching Elasticsearch first... ==="
 )
 
 echo "=== Waiting for Elasticsearch to start... ==="
-sleep 45
+sleep 30
 
-echo "=== Checking Elasticsearch health... ==="
-for i in {1..30}; do
-  if sudo docker exec elasticsearch curl -s http://localhost:9200/_cluster/health >/dev/null 2>&1; then
-    echo "✅ Elasticsearch is healthy"
-    break
-  fi
-  echo "⏳ Waiting for Elasticsearch... (attempt $i/30)"
-  sleep 10
-done
+# echo "=== Checking Elasticsearch health... ==="
+# for i in {1..30}; do
+#   if sudo docker exec elasticsearch curl -s http://localhost:9200/_cluster/health >/dev/null 2>&1; then
+#     echo "✅ Elasticsearch is healthy"
+#     break
+#   fi
+#   echo "⏳ Waiting for Elasticsearch... (attempt $i/30)"
+#   sleep 10
+# done
 
 echo "=== Generating Kibana enrollment token... ==="
 # Wait a bit more to ensure cluster is fully ready
