@@ -2,14 +2,17 @@
 set -e
 
 echo "=== Updating system and installing Docker & Docker Compose... ==="
-(sudo apt update && sudo apt upgrade -y && sudo apt install -y docker.io docker-compose && sudo systemctl enable docker --now) &> /dev/null
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y docker.io docker-compose
+sudo systemctl enable docker --now
 
-echo "=== Creating ELK stack directory... ==="
-mkdir -p ~/elk-stack
-cd ~/elk-stack
+echo "=== Creating /home/elk-stack directory... ==="
+sudo mkdir -p /home/elk-stack
+cd /home/elk-stack
 
 echo "=== Creating docker-compose.yml... ==="
-cat <<EOF > docker-compose.yml
+sudo tee docker-compose.yml <<EOF
 version: '3.8'
 
 services:
@@ -53,7 +56,7 @@ volumes:
 EOF
 
 echo "=== Creating logstash.conf to monitor SSH logins... ==="
-cat <<EOF > logstash.conf
+sudo tee logstash.conf <<EOF
 input {
   file {
     path => "/var/log/auth.log"
@@ -78,27 +81,25 @@ output {
 EOF
 
 echo "=== Launching the ELK stack... ==="
-cd elk-stack
-sudo docker compose up -d &> /dev/null
+sudo docker compose up -d
 
 echo "=== Installing Filebeat for file integrity monitoring... ==="
-(
-  curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb &&
-  sudo dpkg -i filebeat-8.13.4-amd64.deb
-) &> /dev/null
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
+sudo dpkg -i filebeat-8.13.4-amd64.deb
 
 echo "=== Enabling file integrity module in Filebeat... ==="
-sudo filebeat modules enable file_integrity &> /dev/null
+sudo filebeat modules enable file_integrity
 
 echo "=== Configuring Filebeat output to Logstash... ==="
-sudo tee -a /etc/filebeat/filebeat.yml > /dev/null <<EOF
+sudo tee -a /etc/filebeat/filebeat.yml <<EOF
 
 output.logstash:
   hosts: ["localhost:5044"]
 EOF
 
 echo "=== Starting Filebeat... ==="
-(sudo systemctl enable filebeat && sudo systemctl start filebeat) &> /dev/null
+sudo systemctl enable filebeat
+sudo systemctl start filebeat
 
 echo ""
 echo "🎉 All set! Access your ELK stack:"

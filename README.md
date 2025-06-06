@@ -22,4 +22,4 @@ This project provides an automated way to deploy the **ELK Stack** (Elasticsearc
 Run this one-liner on your VPS to automatically install and configure everything:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/setup-elk.sh | bash
+sudo curl -sSL https://raw.githubusercontent.com/Incrisz/elk-stack/main/setup-elk.sh | bash
