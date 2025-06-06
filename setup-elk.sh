@@ -1,16 +1,14 @@
 #!/bin/bash
 set -e
 
-echo "=== Updating system and installing Docker & Docker Compose ==="
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y docker.io docker-compose
+echo "=== Updating system and installing Docker & Docker Compose... ==="
+(sudo apt update && sudo apt upgrade -y && sudo apt install -y docker.io docker-compose && sudo systemctl enable docker --now) &> /dev/null
 
-sudo systemctl enable docker --now
+echo "=== Creating ELK stack directory... ==="
+mkdir -p ~/elk-stack
+cd ~/elk-stack
 
-echo "=== Creating ELK stack directory ==="
-mkdir -p ~/elk-stack && cd ~/elk-stack
-
-echo "=== Creating docker-compose.yml ==="
+echo "=== Creating docker-compose.yml... ==="
 cat <<EOF > docker-compose.yml
 version: '3.8'
 
@@ -54,7 +52,7 @@ volumes:
   es_data:
 EOF
 
-echo "=== Creating logstash.conf to monitor SSH logins ==="
+echo "=== Creating logstash.conf to monitor SSH logins... ==="
 cat <<EOF > logstash.conf
 input {
   file {
@@ -79,27 +77,29 @@ output {
 }
 EOF
 
-echo "=== Launching the ELK stack ==="
-sudo docker compose up -d
+echo "=== Launching the ELK stack... ==="
+sudo docker compose up -d &> /dev/null
 
-echo "=== Installing Filebeat for file integrity monitoring ==="
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb
-sudo dpkg -i filebeat-8.13.4-amd64.deb
+echo "=== Installing Filebeat for file integrity monitoring... ==="
+(
+  curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.13.4-amd64.deb &&
+  sudo dpkg -i filebeat-8.13.4-amd64.deb
+) &> /dev/null
 
-echo "=== Enabling file integrity module in Filebeat ==="
-sudo filebeat modules enable file_integrity
+echo "=== Enabling file integrity module in Filebeat... ==="
+sudo filebeat modules enable file_integrity &> /dev/null
 
-echo "=== Configuring Filebeat output to Logstash ==="
+echo "=== Configuring Filebeat output to Logstash... ==="
 sudo tee -a /etc/filebeat/filebeat.yml > /dev/null <<EOF
 
 output.logstash:
   hosts: ["localhost:5044"]
 EOF
 
-echo "=== Starting Filebeat ==="
-sudo systemctl enable filebeat
-sudo systemctl start filebeat
+echo "=== Starting Filebeat... ==="
+(sudo systemctl enable filebeat && sudo systemctl start filebeat) &> /dev/null
 
+echo ""
 echo "🎉 All set! Access your ELK stack:"
 echo "  - Elasticsearch: http://your-vps-ip:9200"
 echo "  - Kibana: http://your-vps-ip:5601"
