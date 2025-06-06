@@ -14,6 +14,7 @@ read -p "🌐 Enter the IP address for this ELK server [$DETECTED_IP]: " ELK_SER
 ELK_SERVER_IP=${ELK_SERVER_IP:-$DETECTED_IP}
 
 echo ""
+echo "ELK_SERVER_IP: $ELK_SERVER_IP"
 echo "📡 ELK Server will be accessible at: $ELK_SERVER_IP"
 read -p "❓ Is this correct? (y/N): " -n 1 -r
 echo
